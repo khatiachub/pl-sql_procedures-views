@@ -1,0 +1,19 @@
+﻿prompt PL/SQL Developer Export User Objects for user KHATIA@ORCL
+prompt Created by xatia on Tuesday, May 13, 2025
+set define off
+spool count_status_by_month.log
+
+prompt
+prompt Creating view COUNT_STATUS_BY_MONTH
+prompt ===================================
+prompt
+CREATE OR REPLACE FORCE VIEW KHATIA.COUNT_STATUS_BY_MONTH AS
+SELECT COUNT(DISTINCT private_number) AS cnt
+   FROM tmpinfo
+  WHERE end_date is null
+  GROUP BY TO_CHAR(start_date, 'YYYY-MM');
+
+
+prompt Done
+spool off
+set define on

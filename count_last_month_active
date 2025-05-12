@@ -1,0 +1,18 @@
+﻿prompt PL/SQL Developer Export User Objects for user KHATIA@ORCL
+prompt Created by xatia on Tuesday, May 13, 2025
+set define off
+spool count_last_month_active.log
+
+prompt
+prompt Creating view COUNT_LAST_MONTH_ACTIVE
+prompt =====================================
+prompt
+CREATE OR REPLACE FORCE VIEW KHATIA.COUNT_LAST_MONTH_ACTIVE AS
+SELECT COUNT(DISTINCT private_number) AS cnt
+   FROM tmpinfo
+  WHERE start_date > TRUNC(ADD_MONTHS(SYSDATE, -1), 'MM');
+
+
+prompt Done
+spool off
+set define on

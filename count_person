@@ -1,0 +1,16 @@
+﻿prompt PL/SQL Developer Export User Objects for user KHATIA@ORCL
+prompt Created by xatia on Tuesday, May 13, 2025
+set define off
+spool count_person.log
+
+prompt
+prompt Creating view COUNT_PERSON
+prompt ==========================
+prompt
+CREATE OR REPLACE FORCE VIEW KHATIA.COUNT_PERSON AS
+SELECT COUNT(DISTINCT private_number) AS cnt FROM tmpinfo;
+
+
+prompt Done
+spool off
+set define on

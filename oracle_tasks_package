@@ -1,0 +1,110 @@
+﻿prompt PL/SQL Developer Export User Objects for user KHATIA@ORCL
+prompt Created by xatia on Tuesday, May 13, 2025
+set define off
+spool oracle_tasks_package.log
+
+prompt
+prompt Creating package body PKG_ORACLE_TASKS
+prompt ======================================
+prompt
+create or replace package body khatia.pkg_oracle_tasks is
+
+  procedure proc_add_book(p_title          varchar2,
+                          p_author         varchar2,
+                          p_price          number,
+                          p_published_date date,
+                          p_stock          number) as
+  begin
+    insert into books
+      (title, author, price, published_date, stock)
+    values
+      (p_title, p_author, p_price, p_published_date, p_stock);
+  end proc_add_book;
+
+  procedure proc_add_customer(p_name      varchar2,
+                              p_lastname  varchar2,
+                              p_email     varchar2,
+                              p_phone     varchar2,
+                              p_join_date date) as
+  begin
+    insert into customer
+      (name, lastname, email, phone, join_date)
+    values
+      (p_name, p_lastname, p_email, p_phone, p_join_date);
+  end proc_add_customer;
+  procedure proc_ad_dborrow(p_book_id     number,
+                            p_customer_id number,
+                            p_borrow_date date,
+                            p_return_date date) as
+  begin
+    insert into borrowings
+      (book_id, customer_id, borrow_date, return_date)
+    values
+      (p_book_id, p_customer_id, p_borrow_date, p_return_date);
+  end proc_ad_dborrow;
+  procedure proc_get_borrowings(p_borrow_curse     out sys_refcursor,
+                                p_auth_curse       out sys_refcursor,
+                                p_cust_curse       out sys_refcursor,
+                                p_sold_curse       out sys_refcursor,
+                                p_countorder_curse out sys_refcursor,
+                                p_date_curse       out sys_refcursor,
+                                p_date1            date,
+                                p_date2            date) as
+  begin
+    open p_borrow_curse for
+      SELECT book_id, COUNT(*) AS cnt
+        FROM borrowings
+       GROUP BY book_id
+       ORDER BY cnt DESC
+       FETCH FIRST 5 ROWS ONLY;
+    open p_auth_curse for
+      select b.title, b.author from books b;
+    open p_cust_curse for
+      select c.name
+        from customer c
+       inner join borrowings b
+          on b.customer_id = c.id
+       where b.return_date is null;
+    open p_sold_curse for
+      select b.author, (b.price * count(*))
+        from borrowings bo
+       inner join books b
+          on b.id = bo.book_id
+       group by bo.book_id, b.author, b.price;
+    open p_countorder_curse for
+      select customer_id, count(*) from borrowings group by customer_id;
+    open p_date_curse for
+      select *
+        from borrowings
+       where borrow_date between p_date1 and p_date2;
+  end proc_get_borrowings;
+
+  procedure proc_update_book(p_book_id number,
+                             p_price   number,
+                             p_stock   number) as
+  begin
+    update books set price = p_price, stock = p_stock where id = p_book_id;
+  end proc_update_book;
+
+  procedure proc_delete_book as
+  begin
+    delete from books where stock = 0;
+  end proc_delete_book;
+  procedure proc_add_x_status(p_private_number varchar2, p_start_date date) as
+  begin
+    insert into tmpinfo
+      (private_number, start_date)
+    values
+      (p_private_number, p_start_date);
+  end proc_add_x_status;
+  procedure proc_remove_x_status(p_id number, p_end_date date) as
+  begin
+    update tmpinfo set end_date = p_end_date where id = p_id;
+  end proc_remove_x_status;
+end pkg_oracle_tasks;
+/
+
+
+prompt Done
+spool off
+set define on
